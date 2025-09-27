@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import select
 from app.account.models import User, RefreshToken
 from datetime import timedelta, datetime, timezone
 from passlib.context import CryptContext
@@ -54,3 +55,17 @@ def decode_token(token: str):
         return HTTPException(status_code=401, detail="Token Has Expired")
     except JWTError:
         return HTTPException(status_code=401, detail="Invalid Token")
+
+async def verify_refresh_token(session: AsyncSession, token: str):
+    stmt = select(RefreshToken).where(RefreshToken.token == token)
+    result = await session.scalars(stmt)
+    db_refresh_token = result.first()
+    if db_refresh_token and not db_refresh_token.revoked:
+        expires_at = db_refresh_token.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at>datetime.now(timezone.utc):
+            user_stmt = select(User).where(User.id == db_refresh_token.user_id)
+            user_result = await session.scalars(user_stmt)
+            return user_result.first()
+    return None
