@@ -12,3 +12,7 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     model_config = {"form_attributes": True}
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
