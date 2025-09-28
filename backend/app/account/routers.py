@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
-from app.account.schemas import UserCreate, UserLogin, UserOut
+from app.account.schemas import PasswordChangeRequest, UserCreate, UserLogin, UserOut
 from app.account.services import (
+    change_password,
     create_user,
     authenticate_user,
     email_verification_send,
@@ -95,3 +96,13 @@ async def send_verification_email(user: User = Depends(get_current_user)):
 @router.get("/verify-email")
 async def verify_email(session: SessionDep, token: str):
     return await verify_email_token(session, token)
+
+
+@router.post("/change-password")
+async def verify_email(
+    session: SessionDep,
+    data: PasswordChangeRequest,
+    user: User = Depends(get_current_user),
+):
+    user = await change_password(session, user, data)
+    return {"msg": "Password Changed Successfully"}
