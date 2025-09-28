@@ -18,7 +18,7 @@ from app.account.services import (
     verify_password_reset_token,
 )
 from app.db.config import SessionDep
-from app.account.utils import create_tokens, verify_refresh_token
+from app.account.utils import create_tokens, revoke_refresh_token, verify_refresh_token
 from app.account.models import User
 from app.account.dependency import get_current_user, require_admin
 
@@ -128,5 +128,18 @@ async def verify_password_reset_email(session: SessionDep, data: PasswordResetRe
 
 
 @router.get("/admin")
-async def get_admin(user: User=Depends(require_admin)):
+async def get_admin(user: User = Depends(require_admin)):
     return {"msg": f"welcome admin {user.email}"}
+
+
+@router.post("/logout")
+async def logout(
+    session: SessionDep, request: Request, user: User = Depends(get_current_user)
+):
+    refress_token = request.cookies.get("refresh_token")
+    if refress_token:
+        await revoke_refresh_token(session, refress_token)
+    response = JSONResponse(content={"detail": "Logged out"})
+    response.delete_cookie("refresh_token")
+    response.delete_cookie("access_token")
+    return response

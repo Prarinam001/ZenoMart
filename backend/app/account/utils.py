@@ -105,3 +105,12 @@ def create_password_reset_token(user_id: int):
     )
     to_encode = {"sub": str(user_id), "type": "password_reset", "exp": expire}
     return jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
+
+async def revoke_refresh_token(session: AsyncSession, token: str):
+    stmt = select(RefreshToken).where(RefreshToken.token == token)
+    result = await session.scalars(stmt)
+    db_token = result.first()
+    if db_token:
+        db_token.revoked = True
+        await session.commit()
