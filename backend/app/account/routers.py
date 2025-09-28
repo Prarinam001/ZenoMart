@@ -20,7 +20,7 @@ from app.account.services import (
 from app.db.config import SessionDep
 from app.account.utils import create_tokens, verify_refresh_token
 from app.account.models import User
-from app.account.dependency import get_current_user
+from app.account.dependency import get_current_user, require_admin
 
 router = APIRouter(prefix="/api/account", tags=["Account"])
 
@@ -125,3 +125,8 @@ async def send_password_reset_email(session: SessionDep, data: ForgetPasswordReq
 @router.post("/verify-password-reset-email")
 async def verify_password_reset_email(session: SessionDep, data: PasswordResetRequest):
     return await verify_password_reset_token(session, data)
+
+
+@router.get("/admin")
+async def get_admin(user: User=Depends(require_admin)):
+    return {"msg": f"welcome admin {user.email}"}
