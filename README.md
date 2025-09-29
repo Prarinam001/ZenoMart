@@ -11,3 +11,5 @@ alembic revision --autogenerate -m "create table"
 
 // for create tables
 alembic upgrade head
+
+alembic stamp head
