@@ -13,5 +13,6 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-decouple>=3.8",
     "python-jose[cryptography]>=3.5.0",
+    "python-slugify>=8.0.4",
     "sqlalchemy[asyncio]>=2.0.43",
 ]
