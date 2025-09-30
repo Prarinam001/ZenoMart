@@ -14,3 +14,11 @@ async def get_all_categories(session: AsyncSession) -> list[CategoryOut]:
     stmt = select(Category)
     result = await session.execute(stmt)
     return result.scalars().all()
+
+async def delete_category(session: AsyncSession, category_id: int)->bool:
+    category = await session.get(Category, category_id)
+    if not category:
+        return False
+    await session.delete(category)
+    await session.commit()
+    return True
