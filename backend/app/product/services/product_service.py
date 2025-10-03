@@ -50,3 +50,14 @@ async def get_all_products(
     result = await session.execute(stmt)
     products = result.scalars().all()
     return {"total": total, "page": page, "limit": limit, "items": products}
+
+
+# search using slug is very SEO friendly
+async def get_product_by_slug(session: AsyncSession, slug: str) -> ProductOut | None:
+    stmt = (
+        select(Product)
+        .options(selectinload(Product.categories))
+        .where(Product.slug == slug)
+    )
+    result = await session.execute(stmt)
+    return result.scalar()

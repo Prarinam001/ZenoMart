@@ -13,7 +13,11 @@ from app.account.models import User
 from app.db.config import SessionDep
 from app.product.schemas import PaginatedProductOut, ProductCreate, ProductOut
 from app.account.dependency import require_admin
-from app.product.services.product_service import create_product, get_all_products
+from app.product.services.product_service import (
+    create_product,
+    get_all_products,
+    get_product_by_slug,
+)
 
 router = APIRouter(prefix="/api/products", tags=["Product"])
 
@@ -43,7 +47,17 @@ async def product_create(
 async def list_product(
     session: SessionDep,
     categories: list[str] | None = Query(default=None),
-    limit:int = Query(default=5, ge=1, le=100),
+    limit: int = Query(default=5, ge=1, le=100),
     page: int = Query(default=1, ge=1),
 ):
     return await get_all_products(session, categories, limit, page)
+
+
+@router.get("/{slug}", response_model=ProductOut)
+async def product_get_by_slug(session: SessionDep, slug: str):
+    product = await get_product_by_slug(session, slug)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
+    return product
