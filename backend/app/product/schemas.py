@@ -36,3 +36,10 @@ class ProductOut(ProductBase):
     categories: list[CategoryOut] = []
     image_url: str | None = None
     model_config = {"from_attributes": True}
+
+
+class PaginatedProductOut(BaseModel):
+    total: int
+    page: int
+    limit: int
+    items: list[ProductOut]

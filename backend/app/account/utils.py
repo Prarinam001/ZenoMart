@@ -71,6 +71,8 @@ async def verify_refresh_token(session: AsyncSession, token: str):
         expires_at = db_refresh_token.expires_at
         if expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=timezone.utc)
+            await session.delete(db_refresh_token)
+            await session.commit()
         if expires_at > datetime.now(timezone.utc):
             user_stmt = select(User).where(User.id == db_refresh_token.user_id)
             user_result = await session.scalars(user_stmt)
