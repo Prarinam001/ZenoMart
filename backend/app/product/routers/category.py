@@ -9,7 +9,7 @@ from app.product.services.category_service import (
     get_all_categories,
 )
 
-router = APIRouter(prefix="/api/products/category", tags=["Category"])
+router = APIRouter(prefix="/api/products-category", tags=["Product Category"])
 
 
 @router.post("/", response_model=CategoryOut)
