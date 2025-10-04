@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import (
     APIRouter,
     Depends,
@@ -17,6 +17,7 @@ from app.product.services.product_service import (
     create_product,
     get_all_products,
     get_product_by_slug,
+    search_product_based_on_filters,
 )
 
 router = APIRouter(prefix="/api/products", tags=["Product"])
@@ -51,6 +52,22 @@ async def list_product(
     page: int = Query(default=1, ge=1),
 ):
     return await get_all_products(session, categories, limit, page)
+
+
+@router.get("/search", response_model=PaginatedProductOut)
+async def search_product_based_on_different_filters(
+    session: SessionDep,
+    category_names: Optional[list[str]] = Query(default=None),
+    title: Optional[str] = Query(None),
+    description: Optional[str] = Query(None),
+    min_price: Optional[float] = Query(None),
+    max_price: Optional[float] = Query(None),
+    limit: int = Query(default=5, ge=1, le=100),
+    page: int = Query(default=1, ge=1),
+):
+    return await search_product_based_on_filters(
+        session, category_names, title, description, min_price, max_price, limit, page
+    )
 
 
 @router.get("/{slug}", response_model=ProductOut)
