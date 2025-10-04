@@ -135,3 +135,13 @@ async def update_product_by_id(
     await session.commit()
     await session.refresh(product)
     return product
+
+async def delete_product(session: AsyncSession, product_id: int)->bool:
+    stmt = select(Product).where(Product.id == product_id)
+    result = await session.execute(stmt)
+    product = result.scalar()
+    if not product:
+        return None
+    await session.delete(product)
+    await session.commit()
+    return True

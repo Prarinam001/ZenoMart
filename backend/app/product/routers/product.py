@@ -20,6 +20,7 @@ from app.product.schemas import (
 from app.account.dependency import require_admin
 from app.product.services.product_service import (
     create_product,
+    delete_product,
     get_all_products,
     get_product_by_slug,
     search_product_based_on_filters,
@@ -111,3 +112,14 @@ async def product_update_by_id(
             status_code=status.HTTP_404_NOT_FOUND, detail="Product Not Found"
         )
     return product
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def product_delete(
+    session: SessionDep,
+    product_id: int,
+    admin_user: User = Depends(require_admin)
+):
+    success = await delete_product(session, product_id)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product Not Found")
+    
