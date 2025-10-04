@@ -1,3 +1,5 @@
+from typing import Optional
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
 
 
@@ -43,3 +45,12 @@ class PaginatedProductOut(BaseModel):
     page: int
     limit: int
     items: list[ProductOut]
+
+
+class ProductUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    stock_quantity: Optional[float] = None
+    image_url: Optional[UploadFile] = None
+    category_ids: Optional[list[int]] = None

@@ -1,9 +1,10 @@
+from typing import Optional
 from fastapi import UploadFile, HTTPException, status
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from app.product.models import Product, Category
-from app.product.schemas import ProductCreate, ProductOut
+from app.product.schemas import ProductCreate, ProductOut, ProductUpdate
 from app.product.utils.product_utils import generate_slug, save_upload_file
 
 
@@ -100,3 +101,37 @@ async def get_product_by_slug(session: AsyncSession, slug: str) -> ProductOut | 
     )
     result = await session.execute(stmt)
     return result.scalar()
+
+
+async def update_product_by_id(
+    session: AsyncSession,
+    product_id: int,
+    data: ProductUpdate,
+    image_url: Optional[UploadFile] = None,
+) -> ProductOut:
+    stmt = (
+        select(Product)
+        .options(selectinload(Product.categories))
+        .where(Product.id == product_id)
+    )
+    result = await session.execute(stmt)
+    product = result.scalar_one_or_none()
+
+    if not product:
+        return None
+    if data.category_ids is not None:
+        category_stmt = select(Category).where(Category.id.in_(data.category_ids))
+        category_result = await session.execute(category_stmt)
+        product.categories = category_result.scalars().all()
+
+    for key, value in data.model_dump(
+        exclude={"category_id"}, exclude_none=True
+    ).items():
+        setattr(product, key, value)
+
+    if image_url is not None:
+        image_path = await save_upload_file(image_url, "images")
+        product.image_url = image_path
+    await session.commit()
+    await session.refresh(product)
+    return product

@@ -11,13 +11,19 @@ from fastapi import (
 )
 from app.account.models import User
 from app.db.config import SessionDep
-from app.product.schemas import PaginatedProductOut, ProductCreate, ProductOut
+from app.product.schemas import (
+    PaginatedProductOut,
+    ProductCreate,
+    ProductOut,
+    ProductUpdate,
+)
 from app.account.dependency import require_admin
 from app.product.services.product_service import (
     create_product,
     get_all_products,
     get_product_by_slug,
     search_product_based_on_filters,
+    update_product_by_id,
 )
 
 router = APIRouter(prefix="/api/products", tags=["Product"])
@@ -76,5 +82,32 @@ async def product_get_by_slug(session: SessionDep, slug: str):
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
+    return product
+
+
+@router.patch("/{product_id}", response_model=ProductOut)
+async def product_update_by_id(
+    session: SessionDep,
+    product_id: int,
+    title: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    price: Optional[float] = Form(None),
+    stock_quantity: Optional[int] = Form(None),
+    category_ids: Optional[list[int]] = Form(None),
+    image_url: Optional[UploadFile] = File(None),
+    admin_user: User = Depends(require_admin),
+):
+    data = ProductUpdate(
+        title=title,
+        description=description,
+        price=price,
+        stock_quantity=stock_quantity,
+        category_ids=category_ids,
+    )
+    product = await update_product_by_id(session, product_id, data, image_url)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product Not Found"
         )
     return product
