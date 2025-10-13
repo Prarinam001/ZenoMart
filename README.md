@@ -13,3 +13,6 @@ alembic revision --autogenerate -m "create table"
 alembic upgrade head
 
 alembic stamp head
+
+// start frontend
+npm run dev
