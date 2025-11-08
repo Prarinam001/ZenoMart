@@ -1,7 +1,7 @@
 "use client"
 import { memo } from 'react';
 import { useParams } from 'next/navigation';
-import { useProductDetailBySlug } from '@/hooks/useProductByCategory';
+import { useProductDetailBySlug } from '@/hooks/useProductHook';
 
 
 const ProductDetailPage = () => {

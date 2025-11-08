@@ -1,7 +1,7 @@
 "use client"
 
 import ProductCard from '@/components/ProductCard';
-import { useSearchProduct } from '@/hooks/useProductByCategory';
+import { useSearchProduct } from '@/hooks/useProductHook';
 import { memo } from 'react';
 import { useState } from 'react';
 

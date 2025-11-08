@@ -76,7 +76,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProductsByCategory } from "@/services/ProductService";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
-import useProductsByCategory from "@/hooks/useProductByCategory";
+import useProductsByCategory from "@/hooks/useProductHook";
 
 export default function Home() {
   const { clothing, electronics, isLoading, isError } = useProductsByCategory();
